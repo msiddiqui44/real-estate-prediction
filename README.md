@@ -25,8 +25,8 @@ Rows with missing or invalid values are filtered out during loading.
 ## How to Run Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/real-estate-price-estimator.git
-   cd real-estate-price-estimator
+   git clone https://github.com/msiddiqui44/real-estate-prediction.git
+   cd real-estate-price-prediction
    ```
 
 2. Install dependencies:
