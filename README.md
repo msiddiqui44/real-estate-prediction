@@ -3,7 +3,7 @@
 This [Streamlit web application](https://mj-real-estate-predictor.streamlit.app)  predicts the market price of residential homes based on user-defined inputs (bedrooms, bathrooms, square footage, and state) and visualizes real estate trends interactively.
 
 ## Features
-- Interactive Price Prediction using a trained Random Forest Regressor
+- Interactive Price Prediction using a trained XGBoost Regressor 
 - Choropleth Map of average prices by U.S. state
 - Scatter Plot of price vs. square footage with trend line and prediction marker
 - Bar Chart of top cities by average price (filtered by bedrooms and bathrooms)
@@ -52,7 +52,7 @@ Rows with missing or invalid values are filtered out during loading.
    - Box plot of prices by bedroom count
 
 ## Model
-- Algorithm: Random Forest Regressor
+- XGBoost Regressor with optimized parameters
 - Features Used: Bedroom, Bathroom, Area, State
 - Pipeline: Includes preprocessing for numerical and categorical features
 ---
