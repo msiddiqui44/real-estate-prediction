@@ -55,12 +55,6 @@ Rows with missing or invalid values are filtered out during loading.
 - Algorithm: Random Forest Regressor
 - Features Used: Bedroom, Bathroom, Area, State
 - Pipeline: Includes preprocessing for numerical and categorical features
-
-## Future Enhancements
-- Add support for more filters (e.g. property type, year built)
-- Export prediction summary as PDF
-- Add mortgage calculator
-
 ---
 
 Made using Streamlit and Plotly
