@@ -1,20 +1,68 @@
-# real-estate-prediction
- - Real Estate Price Estimator
+# Real Estate Price Estimator
 
-A Streamlit web app to predict real estate prices and visualize housing market trends based on user input.
+This Streamlit web application predicts the market price of residential homes based on user-defined inputs (bedrooms, bathrooms, square footage, and state) and visualizes real estate trends interactively.
 
 ## Features
-- Predict home prices using a trained Random Forest model
-- Choropleth map of average prices by state
-- Interactive bar chart of city level prices
-- Scatter plot and box plot visualizations
+- Interactive Price Prediction using a trained Random Forest Regressor
+- Choropleth Map of average prices by U.S. state
+- Scatter Plot of price vs. square footage with trend line and prediction marker
+- Bar Chart of top cities by average price (filtered by bedrooms and bathrooms)
+- Box Plot of listed prices by bedroom count (per selected state)
 
-## Libraries
-- Streamlit
-- Plotly
-- Scikit-learn
-- Pandas
+## Dataset
+**Source**: [US House Listings 2023 on Kaggle](https://www.kaggle.com/datasets/febinphilips/us-house-listings-2023?resource=download)
 
-## Running the App
-- streamlit run app.py
+The dataset used is `cleaned_df.csv`, which includes columns:
+- `ListedPrice`
+- `Bedroom`
+- `Bathroom`
+- `Area`
+- `State`
+- `City`
 
+Rows with missing or invalid values are filtered out during loading.
+
+## How to Run Locally
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/real-estate-price-estimator.git
+   cd real-estate-price-estimator
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Add your `cleaned_df.csv` file to the project root.
+
+4. Run the app:
+   ```bash
+   streamlit run app.py
+   ```
+
+## Example Use
+1. Select bedroom and bathroom count, square footage, and state.
+2. Click "Predict Price".
+3. View:
+   - Estimated market price
+   - State-level price heatma
+   - Price vs. square footage chart with your prediction marked
+   - City average prices
+   - Box plot of prices by bedroom count
+
+## Model
+- Algorithm: Random Forest Regressor
+- Features Used: Bedroom, Bathroom, Area, State
+- Pipeline: Includes preprocessing for numerical and categorical features
+
+## Future Enhancements
+- Add support for more filters (e.g. property type, year built)
+- Export prediction summary as PDF
+- Add mortgage calculator
+
+---
+
+Made using Streamlit and Plotly
+
+**Created by:** Mustafa Siddiqui and Joshua Golconda
