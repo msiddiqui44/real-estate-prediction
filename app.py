@@ -12,16 +12,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
+from xgboost import XGBRegressor
 import joblib
 import os
 
-# ─── App Config ───────────────────────────────────────
+# ─── App Config ───
 st.set_page_config(layout="wide")
 st.title("🏠 Real Estate Price Estimator")
 
-# ─── Load Data ────────────────────────────────────────
+# ─── Load Data ───
 @st.cache_data
 def load_data():
     df = pd.read_csv("cleaned_df.csv")
@@ -34,24 +34,16 @@ def load_data():
 
 df = load_data()
 
-# ─── Sidebar Inputs ───────────────────────────────────
-st.sidebar.header("🛠️ Enter Home Features")
-bedroom_input = st.sidebar.selectbox(
-    "🛏️ Bedrooms",
-    ["1", "2", "3", "4", "5", "6+"],
-    index= 2
-)
+# ─── Sidebar Inputs ───
+st.sidebar.header("🏗️ Enter Home Features")
+bedroom_input = st.sidebar.selectbox("🛏️ Bedrooms", ["1", "2", "3", "4", "5", "6+"], index=2)
 bedroom = 6 if bedroom_input == "6+" else int(bedroom_input)
-bathroom_input = st.sidebar.selectbox(
-    "🛁 Bathrooms",
-    ["1", "2", "3", "4", "5", "6+"],
-    index= 1
-)
+bathroom_input = st.sidebar.selectbox("🛁 Bathrooms", ["1", "2", "3", "4", "5", "6+"], index=1)
 bathroom = 6 if bathroom_input == "6+" else int(bathroom_input)
-sqft = st.sidebar.slider("📐 Square Footage", min_value=300, max_value=7500, value=1800)
+sqft = st.sidebar.slider("📐 Square Footage", min_value=300, max_value=7500, value=2000)
 state = st.sidebar.selectbox("🏳️ State", sorted(df['State'].unique()))
 
-# ─── Model Prep ───────────────────────────────────────
+# ─── Model Prep ───
 filtered_df = df[
     (df['Bedroom'] == bedroom) &
     (df['Bathroom'] == bathroom) &
@@ -78,15 +70,23 @@ preprocessor = ColumnTransformer([
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# ─── Model Load/Train ─────────────────────────────────
-MODEL_PATH = "rf_model.joblib"
+# ─── Model Load/Train ───
+MODEL_PATH = "xgb_model.joblib"
 @st.cache_resource
 def load_or_train_model():
     if os.path.exists(MODEL_PATH):
         return joblib.load(MODEL_PATH)
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('regressor', RandomForestRegressor(n_estimators=20, random_state=42))
+        ('regressor', XGBRegressor(
+            n_estimators=100,
+            learning_rate=0.1,
+            max_depth=6,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            random_state=42,
+            verbosity=0
+        ))
     ])
     model.fit(X_train, y_train)
     joblib.dump(model, MODEL_PATH)
@@ -94,7 +94,7 @@ def load_or_train_model():
 
 model = load_or_train_model()
 
-# ─── Prediction and Visualizations ────────────────────
+# ─── Prediction and Visualizations ───
 if st.sidebar.button("🚀 Predict Price"):
     user_input = pd.DataFrame({
         'Bedroom': [bedroom],
@@ -104,10 +104,10 @@ if st.sidebar.button("🚀 Predict Price"):
     })
     predicted_price = max(model.predict(user_input)[0], 0)
 
-    st.markdown("### 💵 Estimated Market Price")
+    st.markdown("### 📊 Estimated Market Price")
     st.markdown(f"<h1 style='color: yellow;'>${predicted_price:,.2f}</h1>", unsafe_allow_html=True)
 
-    # ─── Choropleth Map ─────────────────────────────
+    # ─── Choropleth Map ───
     st.subheader("🗺️ Average Price by State")
     choropleth_df = df[(df['Bedroom'] == bedroom) & (df['Bathroom'] == bathroom)]
     if not choropleth_df.empty:
@@ -133,7 +133,7 @@ if st.sidebar.button("🚀 Predict Price"):
     else:
         st.info("No data available for the selected bedroom and bathroom combination.")
 
-    # ─── Scatter Plot ──────────────────────────────
+    # ─── Scatter Plot ───
     st.subheader("📈 Price vs Square Footage")
     df_scatter = (
         df[['Area','ListedPrice','Bedroom']]
@@ -184,7 +184,7 @@ if st.sidebar.button("🚀 Predict Price"):
     ])
 
     fig_scatter.update_layout(
-        title = 'Based on all listings',
+        title='Based on all listings',
         paper_bgcolor='black',
         plot_bgcolor='black',
         font_color='white',
@@ -212,65 +212,5 @@ if st.sidebar.button("🚀 Predict Price"):
     )
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # ─── Bar Chart ─────────────────────────────────
-    st.subheader("🏙️ Average Price by City")
-    city_df = df[(df['Bedroom'] == bedroom) & (df['Bathroom'] == bathroom) & (df['State'] == state)]
-
-    if not city_df.empty:
-        top_cities = city_df['City'].value_counts().nlargest(15).index
-        city_df = city_df[city_df['City'].isin(top_cities)]
-        avgprice = city_df.groupby("City")["ListedPrice"].mean().reset_index()
-        avgprice = avgprice.sort_values("ListedPrice", ascending=False)
-        fig_bar = px.bar(
-            avgprice,
-            x="City",
-            y="ListedPrice",
-            labels={"ListedPrice": "Average Price"},
-            color="ListedPrice",
-            color_continuous_scale="Plasma"
-        )
-        fig_bar.update_layout(
-            paper_bgcolor='black',
-            plot_bgcolor='black',
-            font_color='white',
-            title='Filtered by selected Bedrooms, Bathrooms, and State'
-        )
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-    # ─── Box Plot ──────────────────────────────────
-    st.subheader(f"📦 Listed Prices by Bedrooms in {state}")
-    state_box = df[df['State'] == state].copy()
-    state_box = state_box.dropna(subset=['ListedPrice'])
-    state_box = state_box[state_box['BedroomsGroupedNum'] > 0]
-
-    color_map = {
-        1: "#FF6F61", 2: "#F7B801", 3: "#00A6A6",
-        4: "#9D00FF", 5: "#FF1493", 6: "#00FF7F"
-    }
-
-    fig_box = px.box(
-        state_box,
-        x="BedroomsGroupedNum",
-        y="ListedPrice",
-        color="BedroomsGroupedNum",
-        points="outliers",
-        color_discrete_map=color_map
-    )
-    fig_box.update_layout(
-        title = 'Based on listings from selected State',
-        paper_bgcolor='black',
-        plot_bgcolor='black',
-        font_color='white',
-        xaxis=dict(
-            title="Bedrooms",
-            tickmode="array",
-            tickvals=[1, 2, 3, 4, 5, 6],
-            ticktext=["1", "2", "3", "4", "5", "6+"]
-        ),
-        yaxis_title="Listed Price ($)",
-        showlegend=False,
-    )
-    st.plotly_chart(fig_box, use_container_width=True)
-
 else:
-    st.write("👈 Adjust the sidebar inputs and click 'Predict Price' to generate insights.")
+    st.write("👈 Adjust the inputs and click **Predict Price** to generate analysis.")
