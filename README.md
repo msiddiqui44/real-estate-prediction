@@ -1,6 +1,6 @@
 # Real Estate Price Estimator
 
-This Streamlit web application predicts the market price of residential homes based on user-defined inputs (bedrooms, bathrooms, square footage, and state) and visualizes real estate trends interactively.
+This [Streamlit web application](https://mj-real-estate-predictor.streamlit.app)  predicts the market price of residential homes based on user-defined inputs (bedrooms, bathrooms, square footage, and state) and visualizes real estate trends interactively.
 
 ## Features
 - Interactive Price Prediction using a trained Random Forest Regressor
