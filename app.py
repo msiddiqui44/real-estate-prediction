@@ -38,16 +38,10 @@ st.sidebar.header("🏗️ Enter Home Features")
 bedroom_input = st.sidebar.selectbox("🛏️ Bedrooms", ["1", "2", "3", "4", "5", "6+"], index=2)
 bedroom = 6 if bedroom_input == "6+" else int(bedroom_input)
 
-# Limit bathroom options based on bedroom count
-valid_bathroom_options = {
-    1: [1],
-    2: [1, 2],
-    3: [1, 2, 3],
-    4: [2, 3, 4],
-    5: [3, 4, 5],
-    6: [4, 5, 6]
-}
-bathroom_options = valid_bathroom_options.get(bedroom, [1, 2, 3])
+# Limit bathroom options to bedroom or 2 less (min 1)
+max_baths = bedroom
+min_baths = max(1, bedroom - 2)
+bathroom_options = list(range(min_baths, max_baths + 1))
 bathroom_input = st.sidebar.selectbox("🛁 Bathrooms", [str(b) for b in bathroom_options])
 bathroom = int(bathroom_input)
 
