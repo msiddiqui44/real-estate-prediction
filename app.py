@@ -45,7 +45,7 @@ valid_bathroom_options = {
     3: [1, 2, 3],
     4: [2, 3, 4],
     5: [3, 4, 5],
-    6: [4, 5, 6+]
+    6: [4, 5, 6]
 }
 bathroom_options = valid_bathroom_options.get(bedroom, [1, 2, 3])
 bathroom_input = st.sidebar.selectbox("🛁 Bathrooms", [str(b) for b in bathroom_options])
