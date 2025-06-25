@@ -64,11 +64,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 MODEL_PATH = "xgb_model.joblib"
 @st.cache_resource
 def load_or_train_model():
-    try:
-        if os.path.exists(MODEL_PATH):
+    if os.path.exists(MODEL_PATH):
+        try:
             return joblib.load(MODEL_PATH)
-    except Exception as e:
-        st.warning(f"⚠️ Failed to load model from disk. Retraining instead. Reason: {e}")
+        except Exception as e:
+            st.warning(f"⚠️ Failed to load model from disk. Reason: {e}. Retaining now...")
+            os.remove(MODEL_PATH) 
 
     with st.spinner("Training XGBoost model..."):
         model = Pipeline([
@@ -77,7 +78,7 @@ def load_or_train_model():
         ])
         model.fit(X_train, y_train)
         joblib.dump(model, MODEL_PATH)
-    return model
+        return model
     
 model = load_or_train_model()
 
