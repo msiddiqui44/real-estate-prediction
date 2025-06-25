@@ -68,18 +68,18 @@ def load_or_train_model():
         try:
             return joblib.load(MODEL_PATH)
         except Exception as e:
-            st.warning(f"⚠️ Failed to load model from disk. Reason: {e}. Retaining now...")
-            os.remove(MODEL_PATH) 
+            st.warning(f"⚠️ Failed to load model. Removing and retraining. Reason: {e}")
+            os.remove(MODEL_PATH)
 
-    with st.spinner("Training XGBoost model..."):
-        model = Pipeline([
+    with st.spinner("🔁 Training new XGBoost model..."):
+        pipeline = Pipeline([
             ('preprocessor', preprocessor),
             ('regressor', XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6, random_state=42))
         ])
-        model.fit(X_train, y_train)
-        joblib.dump(model, MODEL_PATH)
-        return model
-    
+        pipeline.fit(X_train, y_train)
+        joblib.dump(pipeline, MODEL_PATH)
+        return pipeline
+
 model = load_or_train_model()
 
 # ─── Predict & Visualize ─────────────────────────────
