@@ -33,19 +33,10 @@ df = load_data()
 
 # ─── Sidebar Inputs ───────────────────────────────────
 st.sidebar.header("🏗️ Enter Home Features")
-
-# Bedrooms first
 bedroom_input = st.sidebar.selectbox("🛏️ Bedrooms", ["1", "2", "3", "4", "5", "6+"], index=2)
 bedroom = 6 if bedroom_input == "6+" else int(bedroom_input)
-
-# Limit bathroom options to bedroom or 2 less (min 1)
-max_baths = bedroom
-min_baths = max(1, bedroom - 2)
-bathroom_options = list(range(min_baths, max_baths + 1))
-bathroom_input = st.sidebar.selectbox("🛁 Bathrooms", [str(b) for b in bathroom_options])
-bathroom = int(bathroom_input)
-
-# Other inputs
+bathroom_input = st.sidebar.selectbox("🛁 Bathrooms", ["1", "2", "3", "4", "5", "6+"], index=1)
+bathroom = 6 if bathroom_input == "6+" else int(bathroom_input)
 sqft = st.sidebar.slider("📐 Square Footage", min_value=300, max_value=7500, value=2000)
 state = st.sidebar.selectbox("🏳️ State", sorted(df['State'].unique()))
 
@@ -240,3 +231,6 @@ if st.sidebar.button("🚀 Predict Price"):
         title="Boxplot by Bedroom Count (Filtered by State)"
     )
     st.plotly_chart(fig_box, use_container_width=True)
+
+else:
+    st.write("👈 Adjust input features on the sidebar and click **Predict Price** to see the estimated home price.")
